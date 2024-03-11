@@ -62,7 +62,20 @@ def main():
 if st.button("Sign Up"):
     try:
         # Existing code
+        st.subheader("Login Section")
 
+        username = st.text_input("Username")
+        password = st.text_input("Password", type="password")
+
+        if st.button("Login"):
+            c.execute("SELECT * FROM users WHERE username=?", (username,))
+            user = c.fetchone()
+
+            if user and verify_password(password, user[2]):
+                st.success("Logged in as {}".format(username))
+                job_tracking(c, user[0])  # Pass user ID to the job tracking section
+            else:
+                st.error("Invalid username or password")
         if existing_user:
             st.error("Username already exists. Please choose a different one.")
         else:
