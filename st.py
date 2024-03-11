@@ -1,24 +1,47 @@
 import streamlit as st
 import sqlite3
-from passlib.hash import pbkdf2_sha256  # For password hashing
+from passlib.hash import pbkdf2_sha256
+import datetime
 
-# Helper function to hash passwords
 def hash_password(password):
     return pbkdf2_sha256.hash(password)
 
-# Helper function to verify hashed passwords
 def verify_password(password, hashed_password):
     return pbkdf2_sha256.verify(password, hashed_password)
 
-# Streamlit app structure
-def main():
-    st.title("Job Application Tracker")
-
-    # Create a database connection
+def create_tables():
     conn = sqlite3.connect('job_tracker.db')
     c = conn.cursor()
 
-    # ... (Code for creating tables as shown in the previous response)
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT NOT NULL,
+            password TEXT NOT NULL
+        )
+    ''')
+
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS job_applications (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            company_name TEXT NOT NULL,
+            position TEXT NOT NULL,
+            application_date DATE,
+            status TEXT,
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        )
+    ''')
+
+    conn.commit()
+    conn.close()
+
+def main():
+    create_tables()
+
+    conn = sqlite3.connect('job_tracker.db')
+    c = conn.cursor()
+
 
     # Navigation
     menu = ["Home", "Login", "Sign Up"]
