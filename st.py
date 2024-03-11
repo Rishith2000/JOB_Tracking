@@ -59,22 +59,25 @@ def main():
     conn.close()
 
 # Login function
-def login(c):
-    st.subheader("Login Section")
+if st.button("Sign Up"):
+    try:
+        # Existing code
 
-    username = st.text_input("Username")
-    password = st.text_input("Password", type="password")
-
-    if st.button("Login"):
-        # Check if the user exists in the database
-        c.execute("SELECT * FROM users WHERE username=?", (username,))
-        user = c.fetchone()
-
-        if user and verify_password(password, user[2]):
-            st.success("Logged in as {}".format(username))
-            # You can redirect the user to the job tracking section or perform other actions here
+        if existing_user:
+            st.error("Username already exists. Please choose a different one.")
         else:
-            st.error("Invalid username or password")
+            hashed_password = hash_password(new_password)
+            c.execute("INSERT INTO users (username, password) VALUES (?, ?)", (new_username, hashed_password))
+            conn.commit()
+            st.success("Account created successfully. You can now log in.")
+
+            # Git commit to track the user sign-up
+            os.system("git add job_tracker.db")
+            os.system("git commit -m 'User sign-up: {}'".format(new_username))
+            os.system("git push origin master")  # Push changes to GitHub
+    except Exception as e:
+        st.error(f"Error during sign-up: {e}")
+
 
 # Sign-up function
 def sign_up(c):
